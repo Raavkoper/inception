@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx/
+    ports:
+      - 433:433
+    # volumes:
+    #   - ""
+    restart: always
+    networks:
+      - bignet
+
+  wordpress:
+    container_name: wordpress
+    build: ./requirements/wordpress/
+    ports:
+      - 80:80
+    restart: always
+    env_file:
+      - ./requirements/.env
+    networks:
+      - bignet
+
+  # mariadb:
+  #   container_name: mariadb
+  #   build: ./mariadb/
+  #   volumes:
+  #     -
+  #   restart: always
+  #   env_file:
+  #     - .env
+
+
+networks:
+  bignet:
