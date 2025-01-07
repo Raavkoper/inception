@@ -1,4 +1,6 @@
-FROM debian:buster
+FROM debian:bullseye
+
+EXPOSE 3306
 
 RUN apt-get update && apt-get -y install mariadb-server mariadb-client
 

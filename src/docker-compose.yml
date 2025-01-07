@@ -6,19 +6,25 @@ services:
     ports:
       - 433:433
     restart: always
+    volumes:
+      - wordpress:/var/www/html
+    depends_on:
+      - wordpress
     networks:
-      - bignet
+      - inception
 
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress/
-    ports:
-      - 80:80
     restart: always
     env_file:
       - ./requirements/.env
+    volumes:
+      - wordpress:/var/www/html
+    depends_on:
+      - mariadb
     networks:
-      - bignet
+      - inception
 
   mariadb:
     container_name: mariadb
@@ -26,7 +32,22 @@ services:
     restart: always
     env_file:
       - ./requirements/.env
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - inception
 
+volumes:
+  mariadb:
+    driver_opts:
+      type: none
+      o: bind
+      device: /Users/rkoper/data/mariadb
+  wordpress:
+    driver_opts:
+      type: none
+      o: bind
+      device: /Users/rkoper/data/wordpress
 
 networks:
-  bignet:
+  inception:

@@ -18,21 +18,20 @@ cat << EOF > init.sql
 	FLUSH PRIVILEGES;
 
 	DELETE FROM mysql.user WHERE User='';
-	DROP DATABASE test;
-	DELETE FROM mysql.db WHERE Db='test';
 
-	ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_PASSWORD';
+	ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_PASS';
 
 	CREATE DATABASE IF NOT EXISTS $DB_NAME;
 
 	CREATE USER '$DB_USER'@'%';
-	SET PASSWORD FOR '$DB_USER'@'%' = PASSWORD('$DB_PASSWORD');
-	GRANT ALL PRIVILEGES ON wordpress.* TO '$DB_USER'@'%';
-	GRANT ALL ON wordpress.* to '$DB_USER'@'%';
+	SET PASSWORD FOR '$DB_USER'@'%' = PASSWORD('$DB_PASS');
+	GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%';
+
 	FLUSH PRIVILEGES;
 
 	CREATE USER '$WP_SECOND_USER'@'%';
 	SET PASSWORD FOR '$WP_SECOND_USER'@'%' = PASSWORD('$WP_SECOND_USER_PASSWORD');
+
 EOF
 
 mysqld --user=mysql --bootstrap < init.sql
