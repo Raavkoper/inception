@@ -35,6 +35,7 @@ else
 			--dbpass=$DB_PASS					\
 			--dbhost=$DB_HOST					\
 			--allow-root
+
 fi
 
 # Install WordPress

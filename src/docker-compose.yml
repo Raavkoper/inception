@@ -4,7 +4,7 @@ services:
     container_name: nginx
     build: ./requirements/nginx/
     ports:
-      - 433:433
+      - "433:433"
     restart: always
     volumes:
       - wordpress:/var/www/html
