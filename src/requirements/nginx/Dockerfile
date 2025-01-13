@@ -1,15 +1,25 @@
 FROM debian:bullseye
 
-EXPOSE 443
+# Expose the port
+EXPOSE	443
 
-RUN		apt-get update
-RUN		apt-get install -y nginx \
-                openssl
+# Install nginx
+RUN apt update -y &&				\
+    apt install -y nginx &&			\
+    apt install -y openssl
 
-COPY index.html /usr/share/nginx/html/index.html
+# Copy the config file
+COPY default.conf /etc/nginx/conf.d/
 
-COPY nginx.conf /etc/nginx/nginx.conf
+# Generate the SSL certificate
+RUN openssl req													\
+    -x509													\
+    -nodes													\
+    -days		365											\
+    -newkey		rsa:2048									\
+    -subj		"/CN=${DOMAIN}"								\
+    -keyout		"/etc/ssl/private/nginx-selfsigned.key"		\
+    -out		"/etc/ssl/certs/nginx-selfsigned.crt"
 
-RUN openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/CN=rkoper.42.fr"
-
-CMD ["nginx", "-g", "daemon off;"]
+# Make nginx run in the foreground to keep the container running
+ENTRYPOINT 	[ "nginx", "-g", "daemon off;" ]

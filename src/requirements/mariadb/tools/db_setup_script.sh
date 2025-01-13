@@ -1,43 +1,43 @@
-#!bin/bash
+#!/bin/bash
 
-if [ ! -d /run/mysqld ] #checks if the database is not already set up
-then
+# Set the working directory
+if [ ! -d /run/mysqld ]; then
 
-	echo "Setting up MariaDB"
+	if [ ! -d /run/mysqld ]; then
+		echo "Initializing MariaDB data directory..."
 
-	# Create the run directory for mysqld
-	mkdir -p /run/mysqld
-	chown -R mysql:mysql /run/mysqld
-	chown -R mysql:mysql /var/lib/mysql
+		# Create the run folder
+		mkdir -p	/run/mysqld
 
-	mysql_install_db --basedir=/usr --datadir=/var/lib/mysql #initializes database
+		# Change owner and group
+		chown -R	mysql:mysql		/run/mysqld
+		chown -R	mysql:mysql		/var/lib/mysql
+	else
+		echo "MariaDB data directory already initialized."
+	fi
 
-# Creates a temporary file to store the SQL commands to be executed, creates the database and the users
-cat << EOF > init.sql
-	USE mysql;
-	FLUSH PRIVILEGES;
+	# Initialize the database
+	if [ ! -d /var/lib/mysql/mysql ]; then
+		mysql_install_db
+	else
+		echo "MariaDB database already initialized."
+	fi
 
-	DELETE FROM mysql.user WHERE User='';
+	# Set up the database and the user
+	echo "Setting up the database and the user..."
+	{
+		echo "FLUSH PRIVILEGES;"
+		echo "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;"
+		echo "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';"
+		echo "GRANT ALL ON \`$DB_NAME\`.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';"
+		echo "FLUSH PRIVILEGES;"
+	} | mysqld --bootstrap
 
-	ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_PASS';
-
-	CREATE DATABASE IF NOT EXISTS $DB_NAME;
-
-	CREATE USER '$DB_USER'@'%';
-	SET PASSWORD FOR '$DB_USER'@'%' = PASSWORD('$DB_PASS');
-	GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%';
-
-	FLUSH PRIVILEGES;
-
-	CREATE USER '$WP_SECOND_USER'@'%';
-	SET PASSWORD FOR '$WP_SECOND_USER'@'%' = PASSWORD('$WP_SECOND_USER_PASSWORD');
-
-EOF
-
-mysqld --user=mysql --bootstrap < init.sql
-
+else
+	echo "MariaDB data directory already exists."
 fi
 
-echo "MariaDB started"
-
-exec mysqld --user=mysql --console #starts database server in foreground
+# Run mariaDB in the foreground
+echo "Starting MariaDB..."
+echo "MariaDB is ready!"
+exec mysqld

@@ -22,6 +22,7 @@ else
 			--allow-root
 fi
 
+
 # Create wp-config.php
 if [ -f wp-config.php ]
 then
@@ -63,6 +64,18 @@ else
 			--path="/var/www/html"				\
 			--user_pass=$WP_PASS				\
 			--role=editor						\
+			--allow-root
+fi
+
+# Activate the theme
+ACTIVE_THEME=$(wp theme list --status=active --field=name --path="/var/www/html" --allow-root | tr '[:upper:]' '[:lower:]')
+
+if [ "$ACTIVE_THEME" = "twentytwentythree" ]; then
+    echo "The theme 'Twenty Twenty-Three' is already active."
+else
+	echo "Activating the theme..."
+	wp theme activate twentytwentythree			\
+			--path="/var/www/html"				\
 			--allow-root
 fi
 
