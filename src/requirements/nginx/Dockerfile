@@ -11,6 +11,9 @@ RUN apt update -y &&				\
 # Copy the config file
 COPY default.conf /etc/nginx/conf.d/
 
+COPY index.html .
+RUN chmod 644 index.html
+
 # Generate the SSL certificate
 RUN openssl req													\
     -x509													\
